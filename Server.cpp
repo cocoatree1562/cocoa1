@@ -8,7 +8,7 @@
 //너무 많은 양의 전송을 하면 성능상도 그렇구
 //물리적인 네트워크 기기에도 한계가 있기 때문에
 //버퍼 (임시 저장공간)사이즈는 제한을 걸어줄게요
-#define BUFF_SIZE 1024
+#define USER_MAXIMUM 1024
 //제한을 해야되는 요소는 굉장히 많이 있는데요
 //동시 접속자 서버가 원활하게 돌아갈 수 있도록
 //접속 인원의 한계를 미리 정해놓습니다
@@ -142,9 +142,9 @@ int main()
 	socklen_t addressSize;
 
 	//받는 버퍼
-	char buffRecv[BUFF_SIZE];
+	char buffRecv[USER_MAXIMUM];
 	//주는 버퍼
-	char buffSend[BUFF_SIZE];
+	char buffSend[USER_MAXIMUM];
 
 	//일단 0으로 초기화
 	memset(buffRecv, 0, sizeof(buffRecv));
@@ -155,6 +155,56 @@ int main()
 	if (StartServer(&listenFD)) return -4;
 
 	cout << "서버가 정상적으로 실행되었습니다." << endl;
+
+	//pollFDArray가 제가 연락을 기다리고 있는 애들이에요
+	//그러다 보니깐 일단 처음에는 연락해줄 애가 없다는 것을 확인해야겠죠
+	for (int i = 0; i < USER_MAXIMUM; i++)
+	{
+		//-1이 없다는 뜻
+		pollFDArray[i].fd = -1
+	}
+
+	//리슨 소캣도 따로 함수 만들어서 돌릴 건 아니니깐
+	pollFDArray[0].fd = listenFD;
+	//읽기 대기중 지금 가져왔어요
+	pollFDArray[0].events = POLLIN;
+	pollFDArray[0].revents = 0;
+
+	//무한 반복
+	for (;;)
+	{
+		result = poll(pollFDArray, USER_MAXIMUM, -1);
+
+		if (result > 0)
+		{
+			//0번이 리슨 소켓이었습니다
+			//0번에 들어오려고 하는 애들을 체크해주긴 해야해요
+			if (pllFDArray[0].revents == POLLIN)
+			{
+				//들어오세요
+				connectFD = accept(listenFD, (struct sockaddr*)&connectSocket, &addressSize);
+
+				//0번은 리슨소켓이니깐 1번부터 찾아봅시다
+				for (int i = 1; i < USER_MAXIMUM; i++)
+				{
+					//여기 있네
+					if (pollFDArray[i].fd == 1)
+					{
+						pollFDArray[i].fd = connectFD;
+						pollFDArray[i].events = POLLIN;
+						pollFDArray[i].revents = 0;
+
+						//새로운 유저 정보를 생성합니다
+						userFDArray[i] = new UserData();
+						//너가 이 자리에 있는거야
+						userFDArray[i]->FDNumber = i;
+
+						break;
+					}
+				}
+			}
+		}
+	}
 
 	return -4;
 }

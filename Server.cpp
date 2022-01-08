@@ -70,14 +70,14 @@ UserData8 userFDArray[FD_NUMBER];
 //====전역변수 선언란====//
 
 
-void ServerStart(int* currentFD)
+bool StartServer(int* currentFD)
 {
 	//위에서 못 만들어 왔을 때
 	if (*currentFD == -1)
 	{
 		perror("socket()");
 		close(*currentFD);
-		return;
+		return true;
 	}
 
 	//소켓에는 ip와 포트가 있어요 넣어주어야 하겠죠?

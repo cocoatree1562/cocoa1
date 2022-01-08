@@ -8,7 +8,7 @@
 //너무 많은 양의 전송을 하면 성능상도 그렇구
 //물리적인 네트워크 기기에도 한계가 있기 때문에
 //버퍼 (임시 저장공간)사이즈는 제한을 걸어줄게요
-#define USER_MAXIMUM 1024
+#define BUFFER_SIZE 1024
 //제한을 해야되는 요소는 굉장히 많이 있는데요
 //동시 접속자 서버가 원활하게 돌아갈 수 있도록
 //접속 인원의 한계를 미리 정해놓습니다
@@ -17,7 +17,7 @@
 //윈도우스 같은 경우에는 소켓이 따로 있습니다
 //리녹스는 모든 것을 파일 형태로 관리해요 소켓 조차도 파일이거든요
 //그래서 FD 넘버라고 헀어요
-#define FD_NUMBER 100
+#define USER_MAXIMUM 100
 //서버가 무한한 속도로 돌아가면 물론 좋겠죠
 //서버의 틱레이트를 조절해주실 필요가 있는데요
 //클라이언트 같은 경우는 144프레임으로 하시는분 굉장히 많습니다
@@ -65,8 +65,8 @@ public:
 };
 
 //====전역변수 선언란====//
-struct pollfd pollFDArray[FD_NUMBER];
-UserData* userFDArray[FD_NUMBER];
+struct pollfd pollFDArray[USER_MAXIMUM];
+UserData* userFDArray[USER_MAXIMUM];
 //====전역변수 선언란====//
 
 
@@ -142,9 +142,9 @@ int main()
 	socklen_t addressSize;
 
 	//받는 버퍼
-	char buffRecv[USER_MAXIMUM];
+	char buffRecv[BUFFER_SIZE];
 	//주는 버퍼
-	char buffSend[USER_MAXIMUM];
+	char buffSend[BUFFER_SIZE];
 
 	//일단 0으로 초기화
 	memset(buffRecv, 0, sizeof(buffRecv));

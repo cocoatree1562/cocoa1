@@ -121,7 +121,7 @@ bool StartServer(int* currentFD)
 
 int main()
 {
-	cout << "ㅁㄴㅇㄹ" << endl;
+	
 	//소켓들은 전부다 int로 관리될 거에요 함수를 통해서 접근할 거니깐 너무 걱정하실 필요 없어요
 	//사실 컴퓨터의 연결이라고 하는 건 생각보다 까다롭습니다
 	//컴퓨터가 내용을 받아주려고 한다면 상대방의 메세지를 받을 준비가 되어있어야 합니다
@@ -151,8 +151,8 @@ int main()
 	memset(buffSend, 0, sizeof(buffSend));
 
 	//서버를 시작합니다			실패하면 그대로 프로그램을 종료합시다
-	cout << "asdf" << endl;
-	if (StartServer(&listenFD)); return -4;
+	
+	if (StartServer(&listenFD)) return -4;
 
 	cout << "서버가 정상적으로 실행되었습니다." << endl;
 

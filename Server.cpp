@@ -66,7 +66,7 @@ public:
 
 //====전역변수 선언란====//
 struct pollfd pollFDArray[FD_NUMBER];
-UserData8 userFDArray[FD_NUMBER];
+UserData* userFDArray[FD_NUMBER];
 //====전역변수 선언란====//
 
 
@@ -87,7 +87,7 @@ bool StartServer(int* currentFD)
 	memset(&address, 0, sizeof(address));
 
 	//IPv4의 IP를 넘겨줄테니깐 그렇게 아세요
-	address.sin_family = AF_NIET;
+	address.sin_family = AF_INET;
 	//IP같은 경우는 ff.ff.ff.ff 같이 점이 굉장히 많이 있어서 숫자로 표시하기 애매하니깐
 	//보통은 이렇게 문자열로 만든 다음에 함수로 그걸 풀어서 써요
 	address.sin_addr.s_addr = inet_addr(SERVER_IP);//0x0AB20005
@@ -99,7 +99,7 @@ bool StartServer(int* currentFD)
 	if (bind(*currentFD, (struct sockaddr*)&address, sizeof(address)) == -1)
 	{
 		//바인드에 에러가 났어요
-		perror("bind()")
+		perror("bind()");
 		close(*currentFD);
 		return true;
 	}

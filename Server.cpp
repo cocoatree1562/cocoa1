@@ -161,7 +161,7 @@ int main()
 	for (int i = 0; i < USER_MAXIMUM; i++)
 	{
 		//-1이 없다는 뜻
-		pollFDArray[i].fd = -1
+		pollFDArray[i].fd = -1;
 	}
 
 	//리슨 소캣도 따로 함수 만들어서 돌릴 건 아니니깐
@@ -179,7 +179,7 @@ int main()
 		{
 			//0번이 리슨 소켓이었습니다
 			//0번에 들어오려고 하는 애들을 체크해주긴 해야해요
-			if (pllFDArray[0].revents == POLLIN)
+			if (pollFDArray[0].revents == POLLIN)
 			{
 				//들어오세요
 				connectFD = accept(listenFD, (struct sockaddr*)&connectSocket, &addressSize);

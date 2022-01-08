@@ -188,7 +188,7 @@ int main()
 				for (int i = 1; i < USER_MAXIMUM; i++)
 				{
 					//여기 있네
-					if (pollFDArray[i].fd == 1)
+					if (pollFDArray[i].fd == -1)
 					{
 						pollFDArray[i].fd = connectFD;
 						pollFDArray[i].events = POLLIN;

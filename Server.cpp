@@ -200,7 +200,7 @@ int main()
 						userFDArray[i]->FDNumber = i;
 
 						//인삿말
-						write(pollFDArray[i].fd, "ㅁㄴㅇㄹ", 3333);
+						write(pollFDArray[i].fd, "ㅎㅇ", 50);
 
 						break;
 					};

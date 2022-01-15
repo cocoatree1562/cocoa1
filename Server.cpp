@@ -273,7 +273,8 @@ int main()
 					break;
 				}
 			}
-
+			//버퍼를 초기화 시켜주고 가도록 합시다
+			memset(buffRecv, 0, BUFFER_SIZE);
 		};
 	};
 

@@ -40,6 +40,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "ServerEnum.h"
+
 using namespace std;
 
 //전방선언//
@@ -118,6 +120,14 @@ bool StartServer(int* currentFD)
 	//아무리 문제 없이 다 잘끝났어요
 	return false;
 }
+
+void CheckMessage(char receive[], int length)
+{
+	//이 아래쪽은 받는 버퍼의 내용을 가져왔을 때에만 여기 있겠죠
+	cout << buffRecv << endl;
+}
+
+
 
 int main()
 {
@@ -231,8 +241,11 @@ int main()
 						break;
 					};
 
-					//이 아래쪽은 받는 버퍼의 내용을 가져왔을 때에만 여기 있겠죠
-					cout << buffRecv << endl;
+					//메세지를 해석해봅시다
+					//일반적인 채팅은 그렇게까지 막 돌려서 표현하진 않을꺼에요
+					//이동 명령이나, 공격명령,인벤토리 사용같은 글자를 활용하는것이 아니라
+					//숫자나 그런
+					CheckMessage(buffRecv, BUFFER_SIZE);
 					break;
 				}
 			}

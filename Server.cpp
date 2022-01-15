@@ -206,6 +206,37 @@ int main()
 					};
 				};
 			};
+
+			//0번은 리슨 소켓이니깐 위에서 처리했으니깐
+			//1번부터 돌아주도록 하겠습니다
+			for (int i = 1; i < USER_MAXIMUM; i++)
+			{
+				//이녀석이 저한테 무슨 내용을 전달을 해줬는지 보러갑시다
+				switch (pollFDArray[i].revents)
+				{
+				//암말도 안했어요 그럼무시
+				case 0: break;
+				//뭔가 말할 때가 있겠죠
+				case POLLIN:
+					//보낼때는 write였는데, 받아올 때에는 read가 되겠죠
+					//받는 용도의 버퍼를 사용해서 읽어주도록 합시다
+					//버퍼를 읽어봤는데 아무것도 들어있지 않네요
+					//소름이 돋는군요 클라이언트가 뭔가 말을 하였는데
+					//열어봤는데 빈 봉투다?
+					//이 상황은 클라이언트가 "연결을 끊겠다"라는 의미 입니다
+					if (read(pollFDArray[i].fd, buffRecv, BUFFER_SIZE) < 1)
+					{
+						delete userFDArray[i];
+						pollFDArray.fd = -1;
+						break;
+					};
+
+					//이 아래쪽은 받는 버퍼의 내용을 가져왔을 때에만 여기 있겠죠
+					cout << buffRecv << endl;
+					break;
+				}
+			}
+
 		};
 	};
 

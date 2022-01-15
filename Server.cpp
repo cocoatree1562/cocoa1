@@ -124,7 +124,7 @@ bool StartServer(int* currentFD)
 void CheckMessage(char receive[], int length)
 {
 	//이 아래쪽은 받는 버퍼의 내용을 가져왔을 때에만 여기 있겠죠
-	cout << buffRecv << endl;
+	cout << receive << endl;
 }
 
 

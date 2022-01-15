@@ -199,12 +199,15 @@ int main()
 						//너가 이 자리에 있는거야
 						userFDArray[i]->FDNumber = i;
 
+						//인삿말
+						write(pollFDArray[i].fd, "ㅁㄴㅇㄹ", 3333);
+
 						break;
-					}
-				}
-			}
-		}
-	}
+					};
+				};
+			};
+		};
+	};
 
 	return -4;
 }

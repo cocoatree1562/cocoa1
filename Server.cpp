@@ -133,7 +133,7 @@ void CheckMessage(char receive[], int length)
 	switch (receive[0])
 	{
 	case Chat:
-		cout << "플레이어 이동" << endl;
+		cout << value << endl;
 
 		//0번 리슨포트였죠, 리슨포트에다가 그대로 전달을 해주시면
 		//서버가 서버한테 접속시도한 거니깐, 요거는 하지맙시다
@@ -149,6 +149,7 @@ void CheckMessage(char receive[], int length)
 		break;
 
 	case Move:
+		cout << "플레이어 이동 수신" << endl;
 		break;
 	}
 	//value는 다 썼으니깐, 지워주기

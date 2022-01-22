@@ -15,7 +15,7 @@
 //							 1		2	  4     8
 typedef enum MessageType : char // short int double >> 크기는 나중에 필요하신대로
 {
-	Chat = 1
+	Chat = 1,
 	Move
 }MessageType;
 

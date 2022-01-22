@@ -122,18 +122,17 @@ bool StartServer(int* currentFD)
 }
 
 void CheckMessage(char receive[], int length)
-{
+{		//			 맨 앞 1바이트는 메세지 구문용이니깐
+	char* value = new char[length - 1];
+	//			 맨 앞 1바이트
+	memcpy(value, receive + 1, length - 1);
+	//이 아래쪽은 받는 버퍼의 내용을 가져왔을 때에만 여기 있겠죠
 	//받은 메세지의 0번칸은 메세지의 타입을 정의합니다
 	//물론 나중에 255개의 메세지 타입이 부족하다라고 생각하신 경우에는
 	//다른 바이트도 같이 확인을 하셔야 하겠지만, 지금은 그냥 바이트 하나만 보면 됩니다
 	switch (receive[0])
 	{
 	case Chat:
-		//			 맨 앞 1바이트는 메세지 구문용이니깐
-		char* value = new char[length - 1];
-		//			 맨 앞 1바이트
-		memcpy(value, receive + 1, length - 1);
-		//이 아래쪽은 받는 버퍼의 내용을 가져왔을 때에만 여기 있겠죠
 		cout << "플레이어 이동" << endl;
 
 		//0번 리슨포트였죠, 리슨포트에다가 그대로 전달을 해주시면
@@ -153,6 +152,8 @@ void CheckMessage(char receive[], int length)
 
 		break;
 	}
+	//value는 다 썼으니깐, 지워주기
+	delete[] value;
 }
 
 

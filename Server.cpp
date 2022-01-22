@@ -134,7 +134,7 @@ void CheckMessage(char receive[], int length)
 		//			 맨 앞 1바이트
 		memcpy(value, receive + 1, length - 1);
 		//이 아래쪽은 받는 버퍼의 내용을 가져왔을 때에만 여기 있겠죠
-		cout << receive << endl;
+		cout << "플레이어 이동" << endl;
 
 		//0번 리슨포트였죠, 리슨포트에다가 그대로 전달을 해주시면
 		//서버가 서버한테 접속시도한 거니깐, 요거는 하지맙시다
@@ -147,6 +147,10 @@ void CheckMessage(char receive[], int length)
 				write(pollFDArray[i].fd, receive, length);
 			}
 		}
+		break;
+
+	case move:
+
 		break;
 	}
 }

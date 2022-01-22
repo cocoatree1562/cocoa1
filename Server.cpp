@@ -148,8 +148,7 @@ void CheckMessage(char receive[], int length)
 		}
 		break;
 
-	case move:
-
+	case Move:
 		break;
 	}
 	//value는 다 썼으니깐, 지워주기

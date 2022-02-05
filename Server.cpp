@@ -159,7 +159,7 @@ void CheckMessage(int userNumber,char receive[], int length)
 
 			//0번 리슨포트였죠, 리슨포트에다가 그대로 전달을 해주시면
 			//서버가 서버한테 접속시도한 거니깐, 요거는 하지맙시다
-			for (int i = 0; i < USER_MAXIMUM; i++)
+			for (int i = 1; i < USER_MAXIMUM; i++)
 			{
 				//유저가 있다
 				if (pollFDArray[i].fd != -1)

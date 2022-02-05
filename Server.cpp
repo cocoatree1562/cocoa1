@@ -42,11 +42,18 @@
 
 #include "ServerEnum.h"
 
+#include <queue>
+
 using namespace std;
 
 //전방선언//
  
 //전방선언//
+
+//====전역변수 선언란====//
+struct pollfd pollFDArray[USER_MAXIMUM];
+UserData* userFDArray[USER_MAXIMUM];
+//====전역변수 선언란====//
 
 union FloatUnion
 {
@@ -66,6 +73,8 @@ IntUnion intChanger;
 class UserData
 {
 public:
+	queue<char*> MessageQueue = new queue<char*>();
+
 	//본인이 타고 있는 소켓의번호를 저장해둡니다
 	//나중에 애한테 연락해야하는 일이 있을때 유용하게 사용하겠죠
 	int FDNumber = 0;
@@ -73,6 +82,22 @@ public:
 	float destinationX, destinationY, destinationZ;
 	//위치 x,y,z를 넣어주기
 	float locationX, locationY, locationZ;
+
+	void MessageQueueing(char* wantMessage)
+	{
+		MessageQueue.push(wantMessage);
+	}
+
+	void MessageSend()
+	{
+		if(MessageQueue.empty()) return;
+
+		char* currentMessage = MessageQueue.front();
+		if (write(pollFDArray[FDNumber]->fd, currentMessage, BUFFER_SIZE) != -1)
+		{
+			MessageQueue.pop();
+		}
+	}
 
 	UserData()
 	{
@@ -85,10 +110,8 @@ public:
 	}
 };
 
-//====전역변수 선언란====//
-struct pollfd pollFDArray[USER_MAXIMUM];
-UserData* userFDArray[USER_MAXIMUM];
-//====전역변수 선언란====//
+
+
 
 
 bool StartServer(int* currentFD)
@@ -289,16 +312,18 @@ int main()
 								if (pollFDArray[j].fd != -1)
 								{
 									write(pollFDArray[j].fd, message, 5);
-									char userNumberMessage[5];
+									char* userNumberMessage = new char[5];
 									userNumberMessage[0] = Join;
 									intChanger.intValue = j;
 									for (int k = 0; k < 4; k++)
 									{						
 										userNumberMessage[k + 1] = intChanger.charArray[k];
 									}
-									write(pollFDArray[i].fd, userNumberMessage, 5);
+									//write(pollFDArray[i].fd, userNumberMessage, 5);
+									userFDArray[i]->MessageQueueing(userNumberMessage);
 								}
 							}
+							userFDArray[i]->MessageSend();
 							break;
 						};
 					};

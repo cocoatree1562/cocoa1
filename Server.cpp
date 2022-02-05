@@ -328,7 +328,7 @@ int main()
 					//이동 명령이나, 공격명령,인벤토리 사용같은 글자를 활용하는것이 아니라
 					//숫자나 그런 쉽게 눈에 보이지 않는 내용을 처리할 때에는
 					//
-					CheckMessage(buffRecv, BUFFER_SIZE);
+					CheckMessage(i, buffRecv, BUFFER_SIZE);
 					break;
 				}
 			}

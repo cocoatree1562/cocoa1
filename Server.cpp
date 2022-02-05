@@ -171,11 +171,11 @@ void CheckMessage(int userNumber,char receive[], int length)
 		cout << "플레이어 이동 수신" << endl;
 
 		for (int i = 1; i < 4; i++) floatChanger.charArray[i] = receive[i + 1];
-		userFDArray[userNumber]->destinationX = floatChannger.floatValue;
+		userFDArray[userNumber]->destinationX = floatChanger.floatValue;
 		for (int i = 1; i < 4; i++) floatChanger.charArray[i] = receive[i + 5];
-		userFDArray[userNumber]->destinationY = floatChannger.floatValue;
+		userFDArray[userNumber]->destinationY = floatChanger.floatValue;
 		for (int i = 1; i < 4; i++) floatChanger.charArray[i] = receive[i + 9];
-		userFDArray[userNumber]->destinationZ = floatChannger.floatValue;
+		userFDArray[userNumber]->destinationZ = floatChanger.floatValue;
 
 		for (int i = 1; i < USER_MAXIMUM; i++)
 		{
@@ -272,13 +272,12 @@ int main()
 						char message[5];
 						message[0] = Join;
 						intChanger.intValue = i;
-						for (int k = 0; k < 4; k++) message[k + 1] = intChanger[k];
+						for (int k = 0; k < 4; k++) message[k + 1] = intChanger.charArray[k];
 
 						for (int j = 1; j < USER_MAXIMUM; j++)
 						{
-							if (pollFDArray[j] != -1)                                                                       write(pollFDArray[j], message, 5);
+							if (pollFDArray[j].fd != -1) write(pollFDArray[j].fd, message, 5);                                                                    write(pollFDArray[j], message, 5);
 						}
-0
 						//새로운 유저 정보를 생성합니다
 						userFDArray[i] = new UserData();
 						//너가 이 자리에 있는거야
@@ -314,11 +313,11 @@ int main()
 						char message[5];
 						message[0] = Exit;
 						intChanger.intValue = i;
-						for (int k = 0; k < 4; k++) message[k + 1] = intChanger[k];
+						for (int k = 0; k < 4; k++) message[k + 1] = intChanger.charArray[k];
 
 						for (int j = 1; j < USER_MAXIMUM; j++)
 						{
-							if (pollFDArray[j] != -1)                                                                       write(pollFDArray[j], message, 5);
+							if (pollFDArray[j].fd != -1) write(pollFDArray[j].fd, message, 5);                                                                         write(pollFDArray[j], message, 5);
 						}
 
 						break;

@@ -296,7 +296,7 @@ int main()
 									{						
 										userNumberMessage[k + 1] = intChanger.charArray[k];
 									}
-									write(pollFDArray[0].fd, userNumberMessage, 5);
+									write(pollFDArray[i].fd, userNumberMessage, 5);
 								}
 							}
 							break;

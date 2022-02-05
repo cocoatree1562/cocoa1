@@ -284,13 +284,16 @@ int main()
 						for (int j = 1; j < USER_MAXIMUM; j++)
 						{
 
-							if (pollFDArray[j].fd != -1) write(pollFDArray[j].fd, message, 5);              
+							if (pollFDArray[j].fd != -1)
+							{
+								write(pollFDArray[j].fd, message, 5);
+								char userNumberMessage[5];
+								userNumberMessage[0] = Join;
+								intChanger.intValue = j;
+								for (int k = 0; k < 4; k++) message[k + 1] = intChanger.charArray[k];
+								write(pollFDArray[i].fd, userNumberMessage, 5);
+							}
 						}
-						//새로운 유저 정보를 생성합니다
-						userFDArray[i] = new UserData();
-						//너가 이 자리에 있는거야
-						userFDArray[i]->FDNumber = i;
-
 						break;
 					};
 				};

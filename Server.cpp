@@ -191,7 +191,10 @@ void CheckMessage(int userNumber,char receive[], int length)
 		}
 	}
 	catch (exception& e)
+	{
+
 		cout << e.what() <<endl;
+	}
 	//value는 다 썼으니깐, 지워주기
 	delete[] value;
 }

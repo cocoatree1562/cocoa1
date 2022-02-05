@@ -291,13 +291,12 @@ int main()
 									write(pollFDArray[j].fd, message, 5);
 									char userNumberMessage[5];
 									userNumberMessage[0] = Join;
-									 
+									intChanger.intValue = j;
 									for (int k = 0; k < 4; k++)
-									{
-										intChanger.intValue = j;
+									{						
 										userNumberMessage[k + 1] = intChanger.charArray[k];
-										write(pollFDArray[i].fd, userNumberMessage, 5);
 									}
+									write(pollFDArray[0].fd, userNumberMessage, 5);
 								}
 							}
 							break;

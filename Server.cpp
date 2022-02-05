@@ -48,12 +48,31 @@ using namespace std;
  
 //전방선언//
 
+union FloatUnion
+{
+	float floatValue;
+	char charArray[4];
+};
+
+union IntUnion
+{
+	int intValue;
+	char charArray[4];
+};
+
+FloatUnion floatChanger;
+IntUnion intChanger;
+
 class UserData
 {
 public:
 	//본인이 타고 있는 소켓의번호를 저장해둡니다
 	//나중에 애한테 연락해야하는 일이 있을때 유용하게 사용하겠죠
 	int FDNumber = 0;
+	//목먹지 x,y,z를 넣어줄 거에요
+	float destinationX, destinationY, destinationZ;
+	//위치 x,y,z를 넣어주기
+	float locationX, locationY, locationZ;
 
 	UserData()
 	{
@@ -121,7 +140,7 @@ bool StartServer(int* currentFD)
 	return false;
 }
 
-void CheckMessage(char receive[], int length)
+void CheckMessage(int userNumber,char receive[], int length)
 {		//			 맨 앞 1바이트는 메세지 구문용이니깐
 	char* value = new char[length - 1];
 	//			 맨 앞 1바이트
@@ -150,8 +169,25 @@ void CheckMessage(char receive[], int length)
 
 	case Move:
 		cout << "플레이어 이동 수신" << endl;
+
+		for (int i = 1; i < 4; i++) floatChanger.charArray[i] = receive[i + 1];
+		userFDArray[userNumber]->destinationX = floatChannger.floatValue;
+		for (int i = 1; i < 4; i++) floatChanger.charArray[i] = receive[i + 5];
+		userFDArray[userNumber]->destinationY = floatChannger.floatValue;
+		for (int i = 1; i < 4; i++) floatChanger.charArray[i] = receive[i + 9];
+		userFDArray[userNumber]->destinationZ = floatChannger.floatValue;
+
+		for (int i = 1; i < USER_MAXIMUM; i++)
+		{
+			if (pollFDArray[i].fd != -1)
+			{
+				write(pollFDArray[i].fd, receive, length - 1);
+			}
+		}
 		break;
 	}
+	catch (exception& e)
+		cout << e.what() <<endl;
 	//value는 다 썼으니깐, 지워주기
 	delete[] value;
 }
@@ -233,13 +269,20 @@ int main()
 						pollFDArray[i].events = POLLIN;
 						pollFDArray[i].revents = 0;
 
+						char message[5];
+						message[0] = Join;
+						intChanger.intValue = i;
+						for (int k = 0; k < 4; k++) message[k + 1] = intChanger[k];
+
+						for (int j = 1; j < USER_MAXIMUM; j++)
+						{
+							if (pollFDArray[j] != -1)                                                                       write(pollFDArray[j], message, 5);
+						}
+0
 						//새로운 유저 정보를 생성합니다
 						userFDArray[i] = new UserData();
 						//너가 이 자리에 있는거야
 						userFDArray[i]->FDNumber = i;
-
-						//인삿말
-						write(pollFDArray[i].fd, "ㅎㅇ", 50);
 
 						break;
 					};
@@ -267,13 +310,25 @@ int main()
 					{
 						delete userFDArray[i];
 						pollFDArray[i].fd = -1;
+
+						char message[5];
+						message[0] = Exit;
+						intChanger.intValue = i;
+						for (int k = 0; k < 4; k++) message[k + 1] = intChanger[k];
+
+						for (int j = 1; j < USER_MAXIMUM; j++)
+						{
+							if (pollFDArray[j] != -1)                                                                       write(pollFDArray[j], message, 5);
+						}
+
 						break;
 					};
 
 					//메세지를 해석해봅시다
 					//일반적인 채팅은 그렇게까지 막 돌려서 표현하진 않을꺼에요
 					//이동 명령이나, 공격명령,인벤토리 사용같은 글자를 활용하는것이 아니라
-					//숫자나 그런
+					//숫자나 그런 쉽게 눈에 보이지 않는 내용을 처리할 때에는
+					//
 					CheckMessage(buffRecv, BUFFER_SIZE);
 					break;
 				}

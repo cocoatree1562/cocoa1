@@ -255,99 +255,130 @@ int main()
 	//무한 반복
 	for (;;)
 	{
-		result = poll(pollFDArray, USER_MAXIMUM, -1);
-
-		if (result > 0)
+		try
 		{
-			//0번이 리슨 소켓이었습니다
-			//0번에 들어오려고 하는 애들을 체크해주긴 해야해요
-			if (pollFDArray[0].revents == POLLIN)
+			result = poll(pollFDArray, USER_MAXIMUM, -1);
+
+			if (result > 0)
 			{
-				//들어오세요
-				connectFD = accept(listenFD, (struct sockaddr*)&connectSocket, &addressSize);
-
-				//0번은 리슨소켓이니깐 1번부터 찾아봅시다
-				for (int i = 1; i < USER_MAXIMUM; i++)
+				//0번이 리슨 소켓이었습니다
+				//0번에 들어오려고 하는 애들을 체크해주긴 해야해요
+				if (pollFDArray[0].revents == POLLIN)
 				{
-					//여기 있네
-					if (pollFDArray[i].fd == -1)
+					//들어오세요
+					connectFD = accept(listenFD, (struct sockaddr*)&connectSocket, &addressSize);
+
+					//0번은 리슨소켓이니깐 1번부터 찾아봅시다
+					for (int i = 1; i < USER_MAXIMUM; i++)
 					{
-						pollFDArray[i].fd = connectFD;
-						pollFDArray[i].events = POLLIN;
-						pollFDArray[i].revents = 0;
-
-						char message[5];
-						message[0] = Join;
-						intChanger.intValue = i;
-						for (int k = 0; k < 4; k++) message[k + 1] = intChanger.charArray[k];
-
-						for (int j = 1; j < USER_MAXIMUM; j++)
+						//여기 있네
+						if (pollFDArray[i].fd == -1)
 						{
+							pollFDArray[i].fd = connectFD;
+							pollFDArray[i].events = POLLIN;
+							pollFDArray[i].revents = 0;
 
-							if (pollFDArray[j].fd != -1)
+							char message[5];
+							message[0] = Join;
+							intChanger.intValue = i;
+							for (int k = 0; k < 4; k++) message[k + 1] = intChanger.charArray[k];
+
+							for (int j = 1; j < USER_MAXIMUM; j++)
 							{
-								write(pollFDArray[j].fd, message, 5);
-								char userNumberMessage[5];
-								userNumberMessage[0] = Join;
-								intChanger.intValue = j;
-								for (int k = 0; k < 4; k++) message[k + 1] = intChanger.charArray[k];
-								write(pollFDArray[i].fd, userNumberMessage, 5);
+
+								if (pollFDArray[j].fd != -1)
+								{
+									write(pollFDArray[j].fd, message, 5);
+									char userNumberMessage[5];
+									userNumberMessage[0] = Join;
+									 
+									for (int k = 0; k < 4; k++)
+									{
+										intChanger.intValue = j;
+										userNumberMessage[k + 1] = intChanger.charArray[k];
+										write(pollFDArray[i].fd, userNumberMessage, 5);
+									}
+								}
 							}
-						}
-						break;
+							break;
+						};
 					};
 				};
-			};
 
-			//0번은 리슨 소켓이니깐 위에서 처리했으니깐
-			//1번부터 돌아주도록 하겠습니다
-			for (int i = 1; i < USER_MAXIMUM; i++)
-			{
-				//이녀석이 저한테 무슨 내용을 전달을 해줬는지 보러갑시다
-				switch (pollFDArray[i].revents)
+				//0번은 리슨 소켓이니깐 위에서 처리했으니깐
+				//1번부터 돌아주도록 하겠습니다
+				for (int i = 1; i < USER_MAXIMUM; i++)
 				{
-				//암말도 안했어요 그럼무시
-				case 0: break;
-				//뭔가 말할 때가 있겠죠
-				case POLLIN:
-					//보낼때는 write였는데, 받아올 때에는 read가 되겠죠
-					//받는 용도의 버퍼를 사용해서 읽어주도록 합시다
-					//버퍼를 읽어봤는데 아무것도 들어있지 않네요
-					//소름이 돋는군요 클라이언트가 뭔가 말을 하였는데
-					//열어봤는데 빈 봉투다?
-					//이 상황은 클라이언트가 "연결을 끊겠다"라는 의미 입니다
-					if (read(pollFDArray[i].fd, buffRecv, BUFFER_SIZE) < 1)
+					//이녀석이 저한테 무슨 내용을 전달을 해줬는지 보러갑시다
+					switch (pollFDArray[i].revents)
 					{
-						delete userFDArray[i];
+						//암말도 안했어요 그럼무시
+					case 0: break;
+						//뭔가 말할 때가 있겠죠
+					case POLLIN:
+						//보낼때는 write였는데, 받아올 때에는 read가 되겠죠
+						//받는 용도의 버퍼를 사용해서 읽어주도록 합시다
+						//버퍼를 읽어봤는데 아무것도 들어있지 않네요
+						//소름이 돋는군요 클라이언트가 뭔가 말을 하였는데
+						//열어봤는데 빈 봉투다?
+						//이 상황은 클라이언트가 "연결을 끊겠다"라는 의미 입니다
+						if (read(pollFDArray[i].fd, buffRecv, BUFFER_SIZE) < 1)
+						{
+							delete userFDArray[i];
+							pollFDArray[i].fd = -1;
+
+							char message[5];
+							message[0] = Exit;
+							intChanger.intValue = i;
+							for (int k = 0; k < 4; k++)
+							{
+								message[k + 1] = intChanger.charArray[k];
+							}
+
+							for (int j = 1; j < USER_MAXIMUM; j++)
+							{
+
+								if (pollFDArray[j].fd != -1) write(pollFDArray[j].fd, message, 5);
+							}
+
+							break;
+						};
+
+						CheckMessage(i, buffRecv, BUFFER_SIZE);
+						break;
+					default:
+							delete userFDArray[i];
 						pollFDArray[i].fd = -1;
 
 						char message[5];
 						message[0] = Exit;
 						intChanger.intValue = i;
-						for (int k = 0; k < 4; k++) message[k + 1] = intChanger.charArray[k];
+						for (int k = 0; k < 4; k++)
+						{
+							message[k + 1] = intChanger.charArray[k];
+						}
 
 						for (int j = 1; j < USER_MAXIMUM; j++)
 						{
 
-							if (pollFDArray[j].fd != -1) write(pollFDArray[j].fd, message, 5);              
+							if (pollFDArray[j].fd != -1) write(pollFDArray[j].fd, message, 5);
 						}
-
 						break;
-					};
-
-					//메세지를 해석해봅시다
-					//일반적인 채팅은 그렇게까지 막 돌려서 표현하진 않을꺼에요
-					//이동 명령이나, 공격명령,인벤토리 사용같은 글자를 활용하는것이 아니라
-					//숫자나 그런 쉽게 눈에 보이지 않는 내용을 처리할 때에는
-					//
-					CheckMessage(i, buffRecv, BUFFER_SIZE);
-					break;
+					}
+					//버퍼를 초기화 시켜주고 가도록 합시다
+					memset(buffRecv, 0, BUFFER_SIZE);
+					memset(buffSend, 0, BUFFER_SIZE);
 				}
-			}
-			//버퍼를 초기화 시켜주고 가도록 합시다
-			memset(buffRecv, 0, BUFFER_SIZE);
-		};
-	};
+				memset(buffRecv, 0, sizeof(buffRecv));
+				memset(buffRecv, 0, sizeof(buffSend));
+			};
+			
+		}
+		catch (exception& e)
+		{
 
-	return -4;
+			cout << e.what() << endl;
+		}
+		return -4;
+	};
 }

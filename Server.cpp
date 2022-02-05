@@ -277,7 +277,7 @@ int main()
 						for (int j = 1; j < USER_MAXIMUM; j++)
 						{
 
-							if (pollFDArray[j].fd != -1) write(pollFDArray[j].fd, message, 5);                                                                    write(pollFDArray[j], message, 5);
+							if (pollFDArray[j].fd != -1) write(pollFDArray[j].fd, message, 5);              
 						}
 						//새로운 유저 정보를 생성합니다
 						userFDArray[i] = new UserData();
@@ -319,7 +319,7 @@ int main()
 						for (int j = 1; j < USER_MAXIMUM; j++)
 						{
 
-							if (pollFDArray[j].fd != -1) write(pollFDArray[j].fd, message, 5);                                                                         write(pollFDArray[j], message, 5);
+							if (pollFDArray[j].fd != -1) write(pollFDArray[j].fd, message, 5);              
 						}
 
 						break;

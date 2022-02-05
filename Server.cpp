@@ -142,49 +142,53 @@ bool StartServer(int* currentFD)
 
 void CheckMessage(int userNumber,char receive[], int length)
 {		//			 맨 앞 1바이트는 메세지 구문용이니깐
-	char* value = new char[length - 1];
-	//			 맨 앞 1바이트
-	memcpy(value, receive + 1, length - 1);
-	//이 아래쪽은 받는 버퍼의 내용을 가져왔을 때에만 여기 있겠죠
-	//받은 메세지의 0번칸은 메세지의 타입을 정의합니다
-	//물론 나중에 255개의 메세지 타입이 부족하다라고 생각하신 경우에는
-	//다른 바이트도 같이 확인을 하셔야 하겠지만, 지금은 그냥 바이트 하나만 보면 됩니다
-	switch (receive[0])
+	try
 	{
-	case Chat:
-		cout << value << endl;
 
-		//0번 리슨포트였죠, 리슨포트에다가 그대로 전달을 해주시면
-		//서버가 서버한테 접속시도한 거니깐, 요거는 하지맙시다
-		for (int i = 0; i < USER_MAXIMUM; i++)
+		char* value = new char[length - 1];
+		//			 맨 앞 1바이트
+		memcpy(value, receive + 1, length - 1);
+		//이 아래쪽은 받는 버퍼의 내용을 가져왔을 때에만 여기 있겠죠
+		//받은 메세지의 0번칸은 메세지의 타입을 정의합니다
+		//물론 나중에 255개의 메세지 타입이 부족하다라고 생각하신 경우에는
+		//다른 바이트도 같이 확인을 하셔야 하겠지만, 지금은 그냥 바이트 하나만 보면 됩니다
+		switch (receive[0])
 		{
-			//유저가 있다
-			if (pollFDArray[i].fd != -1)
+		case Chat:
+			cout << value << endl;
+
+			//0번 리슨포트였죠, 리슨포트에다가 그대로 전달을 해주시면
+			//서버가 서버한테 접속시도한 거니깐, 요거는 하지맙시다
+			for (int i = 0; i < USER_MAXIMUM; i++)
 			{
-				//유저한테 반갑다고 인사해줍시다
-				write(pollFDArray[i].fd, receive, length);
+				//유저가 있다
+				if (pollFDArray[i].fd != -1)
+				{
+					//유저한테 반갑다고 인사해줍시다
+					write(pollFDArray[i].fd, receive, length);
+				}
 			}
-		}
-		break;
+			break;
 
-	case Move:
-		cout << "플레이어 이동 수신" << endl;
+		case Move:
+			cout << "플레이어 이동 수신" << endl;
 
-		for (int i = 1; i < 4; i++) floatChanger.charArray[i] = receive[i + 1];
-		userFDArray[userNumber]->destinationX = floatChanger.floatValue;
-		for (int i = 1; i < 4; i++) floatChanger.charArray[i] = receive[i + 5];
-		userFDArray[userNumber]->destinationY = floatChanger.floatValue;
-		for (int i = 1; i < 4; i++) floatChanger.charArray[i] = receive[i + 9];
-		userFDArray[userNumber]->destinationZ = floatChanger.floatValue;
+			for (int i = 1; i < 4; i++) floatChanger.charArray[i] = receive[i + 1];
+			userFDArray[userNumber]->destinationX = floatChanger.floatValue;
+			for (int i = 1; i < 4; i++) floatChanger.charArray[i] = receive[i + 5];
+			userFDArray[userNumber]->destinationY = floatChanger.floatValue;
+			for (int i = 1; i < 4; i++) floatChanger.charArray[i] = receive[i + 9];
+			userFDArray[userNumber]->destinationZ = floatChanger.floatValue;
 
-		for (int i = 1; i < USER_MAXIMUM; i++)
-		{
-			if (pollFDArray[i].fd != -1)
+			for (int i = 1; i < USER_MAXIMUM; i++)
 			{
-				write(pollFDArray[i].fd, receive, length - 1);
+				if (pollFDArray[i].fd != -1)
+				{
+					write(pollFDArray[i].fd, receive, length - 1);
+				}
 			}
+			break;
 		}
-		break;
 	}
 	catch (exception& e)
 		cout << e.what() <<endl;

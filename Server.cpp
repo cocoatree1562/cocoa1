@@ -283,9 +283,9 @@ int main()
 		pollFDArray[0].events = POLLIN;
 		pollFDArray[0].revents = 0;
 		
-		pthread_t senderThread = nullptr;
+		pthread_t* senderThread = nullptr;
 
-		if (pthread_create(senderThread. nullptr, MessageSendThread, nullptr))
+		if (pthread_create(senderThread, nullptr, MessageSendThread, nullptr))
 		{
 			//스레드를 정상적으로 만들었을 때에는 0을 반환합니다
 			//그래서 여기는요... 사실 실패한 곳이에요...

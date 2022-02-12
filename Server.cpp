@@ -93,9 +93,10 @@ public:
 		if(MessageQueue.empty()) return;
 
 		char* currentMessage = MessageQueue.front();
-		if (write(pollFDArray[FDNumber]->fd, currentMessage, BUFFER_SIZE) != -1)
+		if (write(pollFDArray[FDNumber].fd, currentMessage, BUFFER_SIZE) != -1)
 		{
 			MessageQueue.pop();
+			delete currentMessage;
 		}
 	}
 
@@ -226,60 +227,69 @@ void CheckMessage(int userNumber,char receive[], int length)
 
 int main()
 {
-	
-	//소켓들은 전부다 int로 관리될 거에요 함수를 통해서 접근할 거니깐 너무 걱정하실 필요 없어요
-	//사실 컴퓨터의 연결이라고 하는 건 생각보다 까다롭습니다
-	//컴퓨터가 내용을 받아주려고 한다면 상대방의 메세지를 받을 준비가 되어있어야 합니다
-	//안그러면 그냥 지나가던 이상한 정보를 받을 수 도 있고, 해커의공격이 담긴 메세지를 받을 수도 있어요
-	//보통은 소켓이 닫혀있어요 무엇을 받든 무시하는거에요 (열리게 되는 조건이 있어요)
-	//제가 이미 그 주소로 메세지를 보냈다면 소켓이 받아줍니다
-	//소켓을 열어주는 소켓이 필요한거죠 소켓 하나를 [리슨 소켓]으로 만듭니다
-	//"접속 요청"만 받아주는 소켓을 여는 거에요 누가 접속 요청을 한다면 비어있는 소켓 하나를 찾아요 그래서 걔랑 연결시켜주는
-	//하나의 창구가 되는거에요
-				//IPv4로 연결을 받는다, 연결을 계속 지속한다 
-	int listenFD = socket(AF_INET, SOCK_STREAM, 0);
-	//연결할 FD
-	int connectFD;
-	//연결 결과 저장
-	int result = 0;
-
-	struct sockaddr_in listenSocket, connectSocket;
-	socklen_t addressSize;
-
-	//받는 버퍼
-	char buffRecv[BUFFER_SIZE];
-	//주는 버퍼
-	char buffSend[BUFFER_SIZE];
-
-	//일단 0으로 초기화
-	memset(buffRecv, 0, sizeof(buffRecv));
-	memset(buffSend, 0, sizeof(buffSend));
-
-	//서버를 시작합니다			실패하면 그대로 프로그램을 종료합시다
-	
-	if (StartServer(&listenFD)) return -4;
-
-	cout << "서버가 정상적으로 실행되었습니다." << endl;
-
-	//pollFDArray가 제가 연락을 기다리고 있는 애들이에요
-	//그러다 보니깐 일단 처음에는 연락해줄 애가 없다는 것을 확인해야겠죠
-	for (int i = 0; i < USER_MAXIMUM; i++)
+	try
 	{
-		//-1이 없다는 뜻
-		pollFDArray[i].fd = -1;
-	}
 
-	//리슨 소캣도 따로 함수 만들어서 돌릴 건 아니니깐
-	pollFDArray[0].fd = listenFD;
-	//읽기 대기중 지금 가져왔어요
-	pollFDArray[0].events = POLLIN;
-	pollFDArray[0].revents = 0;
+		//소켓들은 전부다 int로 관리될 거에요 함수를 통해서 접근할 거니깐 너무 걱정하실 필요 없어요
+		//사실 컴퓨터의 연결이라고 하는 건 생각보다 까다롭습니다
+		//컴퓨터가 내용을 받아주려고 한다면 상대방의 메세지를 받을 준비가 되어있어야 합니다
+		//안그러면 그냥 지나가던 이상한 정보를 받을 수 도 있고, 해커의공격이 담긴 메세지를 받을 수도 있어요
+		//보통은 소켓이 닫혀있어요 무엇을 받든 무시하는거에요 (열리게 되는 조건이 있어요)
+		//제가 이미 그 주소로 메세지를 보냈다면 소켓이 받아줍니다
+		//소켓을 열어주는 소켓이 필요한거죠 소켓 하나를 [리슨 소켓]으로 만듭니다
+		//"접속 요청"만 받아주는 소켓을 여는 거에요 누가 접속 요청을 한다면 비어있는 소켓 하나를 찾아요 그래서 걔랑 연결시켜주는
+		//하나의 창구가 되는거에요
+		//IPv4로 연결을 받는다, 연결을 계속 지속한다 
+		int listenFD = socket(AF_INET, SOCK_STREAM, 0);
+		//연결할 FD
+		int connectFD;
+		//연결 결과 저장
+		int result = 0;
 
-	//무한 반복
-	for (;;)
-	{
-		try
+		struct sockaddr_in listenSocket, connectSocket;
+		socklen_t addressSize;
+
+		//받는 버퍼
+		char buffRecv[BUFFER_SIZE];
+		//주는 버퍼
+		char buffSend[BUFFER_SIZE];
+
+		//일단 0으로 초기화
+		memset(buffRecv, 0, sizeof(buffRecv));
+		memset(buffSend, 0, sizeof(buffSend));
+
+		//서버를 시작합니다			실패하면 그대로 프로그램을 종료합시다
+
+		if (StartServer(&listenFD)) return -4;
+
+		cout << "서버가 정상적으로 실행되었습니다." << endl;
+
+		//pollFDArray가 제가 연락을 기다리고 있는 애들이에요
+		//그러다 보니깐 일단 처음에는 연락해줄 애가 없다는 것을 확인해야겠죠
+		for (int i = 0; i < USER_MAXIMUM; i++)
 		{
+			//-1이 없다는 뜻
+			pollFDArray[i].fd = -1;
+		}
+
+		//리슨 소캣도 따로 함수 만들어서 돌릴 건 아니니깐
+		pollFDArray[0].fd = listenFD;
+		//읽기 대기중 지금 가져왔어요
+		pollFDArray[0].events = POLLIN;
+		pollFDArray[0].revents = 0;
+
+		//무한 반복
+		for (;;)
+		{
+			for (int i - 0; i < USER_MAXIMUM; i++)
+			{
+				if (pollFDArray[i].fd >= 0)
+				{
+					userFDArray[i]->MessageSend();
+				}
+			}
+
+
 			result = poll(pollFDArray, USER_MAXIMUM, -1);
 
 			if (result > 0)
@@ -316,7 +326,7 @@ int main()
 									userNumberMessage[0] = Join;
 									intChanger.intValue = j;
 									for (int k = 0; k < 4; k++)
-									{						
+									{
 										userNumberMessage[k + 1] = intChanger.charArray[k];
 									}
 									//write(pollFDArray[i].fd, userNumberMessage, 5);
@@ -371,7 +381,7 @@ int main()
 						CheckMessage(i, buffRecv, BUFFER_SIZE);
 						break;
 					default:
-							delete userFDArray[i];
+						delete userFDArray[i];
 						pollFDArray[i].fd = -1;
 
 						char message[5];
@@ -396,13 +406,13 @@ int main()
 				//memset(buffRecv, 0, sizeof(buffRecv));
 				//memset(buffRecv, 0, sizeof(buffSend));
 			};
-			
 		}
-		catch (exception& e)
-		{
+	}
+	catch (exception& e)
+	{
+		cout << e.what() << endl;
+	}
 
-			cout << e.what() << endl;
-		}
-		return -4;
-	};
+	return -4;
+	
 }

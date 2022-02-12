@@ -53,7 +53,7 @@ using namespace std;
 
 //====전역변수 선언란====//
 struct pollfd pollFDArray[USER_MAXIMUM];
-UserData* userFDArray[USER_MAXIMUM];
+class UserData* userFDArray[USER_MAXIMUM];
 //받는 버퍼
 char buffRecv[BUFFER_SIZE];
 //주는 버퍼
@@ -78,7 +78,7 @@ IntUnion intChanger;
 class UserData
 {
 public:
-	queue<char*> MessageQueue = new queue<char*>();
+	queue<char*>* MessageQueue = new queue<char*>();
 
 	//본인이 타고 있는 소켓의번호를 저장해둡니다
 	//나중에 애한테 연락해야하는 일이 있을때 유용하게 사용하겠죠
@@ -337,7 +337,7 @@ int main()
 									char* currentUserMessage = new char[5];
 									mempcy(currentUserMessage, message, 5);
 
-									write(pollFDArray[j].fd, message, 5);
+									userFDArray[i]->MessageQueueing(currentUserMessage);
 
 									char* userNumberMessage = new char[5];
 									userNumberMessage[0] = Join;

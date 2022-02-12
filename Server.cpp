@@ -54,6 +54,10 @@ using namespace std;
 //====전역변수 선언란====//
 struct pollfd pollFDArray[USER_MAXIMUM];
 UserData* userFDArray[USER_MAXIMUM];
+//받는 버퍼
+char buffRecv[BUFFER_SIZE];
+//주는 버퍼
+char buffSend[BUFFER_SIZE];
 //====전역변수 선언란====//
 
 union FloatUnion
@@ -86,28 +90,31 @@ public:
 
 	void MessageQueueing(char* wantMessage)
 	{
-		MessageQueue.push(wantMessage);
+		MessageQueue->push(wantMessage);
 	}
 
 	void MessageSend()
 	{
-		if(MessageQueue.empty()) return;
+		if(MessageQueue == nullptr ||MessageQueue->empty()) return;
 
-		char* currentMessage = MessageQueue.front();
+		char* currentMessage = MessageQueue->front();
+
 		if (write(pollFDArray[FDNumber].fd, currentMessage, BUFFER_SIZE) != -1)
 		{
-			MessageQueue.pop();
+			MessageQueue->pop();
 			delete currentMessage;
 		}
 	}
 
 	UserData()
 	{
+		MessageQueue = new queue<char*>();
 		cout << "유저 데이터가 생성되었습니다" << endl;
 	}
 
 	~UserData()
 	{
+		delete MessageQueue;
 		cout << "유저 연결이 종료되었습니다" << endl;
 	}
 };
@@ -250,10 +257,7 @@ int main()
 		struct sockaddr_in listenSocket, connectSocket;
 		socklen_t addressSize;
 
-		//받는 버퍼
-		char buffRecv[BUFFER_SIZE];
-		//주는 버퍼
-		char buffSend[BUFFER_SIZE];
+
 
 		//일단 0으로 초기화
 		memset(buffRecv, 0, sizeof(buffRecv));
@@ -279,7 +283,7 @@ int main()
 		pollFDArray[0].events = POLLIN;
 		pollFDArray[0].revents = 0;
 		
-		pthread_t* senderThread = nullptr;
+		pthread_t senderThread = nullptr;
 
 		if (pthread_create(senderThread. nullptr, MessageSendThread, unllptr))
 		{
@@ -321,15 +325,25 @@ int main()
 							intChanger.intValue = i;
 							for (int k = 0; k < 4; k++) message[k + 1] = intChanger.charArray[k];
 
+							userFDArray[i] = new Userdata();
+
+							userFDArray[i]->FDNumber = i;
+
 							for (int j = 1; j < USER_MAXIMUM; j++)
 							{
 
 								if (pollFDArray[j].fd != -1)
 								{
+									char* currentUserMessage = new char[5];
+									mempcy(currentUserMessage, message, 5);
+
 									write(pollFDArray[j].fd, message, 5);
+
 									char* userNumberMessage = new char[5];
 									userNumberMessage[0] = Join;
+
 									intChanger.intValue = j;
+
 									for (int k = 0; k < 4; k++)
 									{
 										userNumberMessage[k + 1] = intChanger.charArray[k];
@@ -409,10 +423,10 @@ int main()
 					//memset(buffSend, 0, BUFFER_SIZE);
 				}
 				//memset(buffRecv, 0, sizeof(buffRecv));
-				//memset(buffRecv, 0, sizeof(buffSend));
+				//memset(buffRecv, 0, sizeof(bu ffSend));
 			};
 		}
-		pthread_cancel(&senderThread);
+		pthread_Join(&senderThread, nullptr);
 	}
 	catch (exception& e)
 	{
@@ -425,21 +439,22 @@ int main()
 }
 
 
-void MessageSendThread()
+void* MessageSendThread(void* args)
 {
 	for (;;)
 	{
-		//poll이라고 하는 녀석은 연락이 올 때 까지 기다립니다
+			//poll이라고 하는 녀석은 연락이 올 때 까지 기다립니다
 			//그래서 이 위쪽에 있는 반복문도 돌아가지 않는 것이죠
 			//그래서 이 작은 반복문을 무한반복시켜주는 작은 스레드가 있으면 좋겠어요
 			//스레드란 컴퓨터가 프로그램을 돌릴 때 돌아가는 하나의 라인이라고 보시면 됩니다
-		for (int i - 0; i < USER_MAXIMUM; i++)
+		for (int i = 1; i < USER_MAXIMUM; i++)
 		{
-			if (pollFDArray[i].fd >= 0)
+			if (userFDArray[i] != nullptr)
 			{
 				memset(buffSend, 0, BUFFER_SIZE);
 				userFDArray[i]->MessageSend();
 			}
 		}
 	}
+	return nullptr;
 }

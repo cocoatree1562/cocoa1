@@ -283,7 +283,7 @@ int main()
 		pollFDArray[0].events = POLLIN;
 		pollFDArray[0].revents = 0;
 		
-		pthread_t* senderThread = nullptr;
+		pthread_t senderThread = nullptr;
 
 		if (pthread_create(senderThread, nullptr, MessageSendThread, nullptr))
 		{

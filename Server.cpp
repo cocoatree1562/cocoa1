@@ -95,7 +95,7 @@ public:
 
 	void MessageSend()
 	{
-		if(MessageQueue == nullptr ||MessageQueue->empty()) return;
+		if(MessageQueue == nullptr || MessageQueue->empty()) return;
 
 		char* currentMessage = MessageQueue->front();
 
@@ -285,7 +285,7 @@ int main()
 		
 		pthread_t senderThread = nullptr;
 
-		if (pthread_create(senderThread. nullptr, MessageSendThread, unllptr))
+		if (pthread_create(senderThread. nullptr, MessageSendThread, nullptr))
 		{
 			//스레드를 정상적으로 만들었을 때에는 0을 반환합니다
 			//그래서 여기는요... 사실 실패한 곳이에요...
@@ -419,14 +419,14 @@ int main()
 						break;
 					}
 					//버퍼를 초기화 시켜주고 가도록 합시다
-					//memset(buffRecv, 0, BUFFER_SIZE);
+					memset(buffRecv, 0, BUFFER_SIZE);
 					//memset(buffSend, 0, BUFFER_SIZE);
 				}
 				//memset(buffRecv, 0, sizeof(buffRecv));
 				//memset(buffRecv, 0, sizeof(bu ffSend));
 			};
 		}
-		pthread_Join(&senderThread, nullptr);
+		pthread_join(senderThread, nullptr);
 	}
 	catch (exception& e)
 	{

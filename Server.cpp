@@ -90,6 +90,8 @@ public:
 
 	void MessageQueueing(char* wantMessage)
 	{
+		if (MessageQueue == nullptr) return;
+
 		MessageQueue->push(wantMessage);
 	}
 
@@ -98,6 +100,10 @@ public:
 		if(MessageQueue == nullptr || MessageQueue->empty()) return;
 
 		char* currentMessage = MessageQueue->front();
+
+		if (currentMessage = nullptr) return;
+
+		if (FDNumber < 0 || pollFDArray[FDNumber].fd <= 1) return;
 
 		if (write(pollFDArray[FDNumber].fd, currentMessage, BUFFER_SIZE) != -1)
 		{
@@ -114,6 +120,11 @@ public:
 
 	~UserData()
 	{
+		while (!MessageQueue->empty())
+		{
+			delete MessageQueue->front
+			MessageQueue->pop();
+		}
 		delete MessageQueue;
 		cout << "유저 연결이 종료되었습니다" << endl;
 	}
@@ -194,10 +205,26 @@ void CheckMessage(int userNumber,char receive[], int length)
 			for (int i = 1; i < USER_MAXIMUM; i++)
 			{
 				//유저가 있다
-				if (pollFDArray[i].fd != -1)
+				if (userFDArray[i] != nullptr)
 				{
+
+
+					int messageLength = 0;
+					for (messageLength = 0; messageLength < length; messageLength++)
+					{
+						if (value[messageLength] == 0) break;
+					}
+
+					char* currentMessage = new char[messageLength + 2];
+
+					currentMessage[0] = Chat;
+
+					currentMessage[1] = userNumber;
+
+					memcpy(currentMessage, +2, value, messageLength);
+
 					//유저한테 반갑다고 인사해줍시다
-					write(pollFDArray[i].fd, receive, length);
+					userFDArray[i]->MessageQueueing(currentMessage);
 				}
 			}
 			break;
@@ -205,18 +232,41 @@ void CheckMessage(int userNumber,char receive[], int length)
 		case Move:
 			cout << "플레이어 이동 수신" << endl;
 
-			for (int i = 1; i < 4; i++) floatChanger.charArray[i] = receive[i + 1];
+			char* currentMessage = new char[14];
+			currentmessage[0] = Move;
+			currentMessage[1] = userNumber;
+
+			for (int i = 0; i < 4; i++)
+			{
+				currentMessage[i + 2] = receive[i + 1];
+				floatChanger.charArray[i] = receive[i + 1];
+			}
 			userFDArray[userNumber]->destinationX = floatChanger.floatValue;
-			for (int i = 1; i < 4; i++) floatChanger.charArray[i] = receive[i + 5];
+
+			for (int i = 0; i < 4; i++)
+			{
+				currentMessage[i + 6] = receive[i + 5];
+				floatChanger.charArray[i] = receive[i + 5];
+			}
 			userFDArray[userNumber]->destinationY = floatChanger.floatValue;
-			for (int i = 1; i < 4; i++) floatChanger.charArray[i] = receive[i + 9];
+
+			for (int i = 0; i < 4; i++)
+			{
+				currentMessage[i + 10] = receive[i + 9];
+				floatChanger.charArray[i] = receive[i + 9];
+			}		
 			userFDArray[userNumber]->destinationZ = floatChanger.floatValue;
+
+
 
 			for (int i = 1; i < USER_MAXIMUM; i++)
 			{
-				if (pollFDArray[i].fd != -1)
+				if (pollFDArray[i].fd != -1 && userFDArray[i] != nullptr)
 				{
-					write(pollFDArray[i].fd, receive, length - 1);
+					char* currentUserMessage = new char[14];
+					memcpy(currentUserMessage, currentMessage, 14);
+					userFDArray[i]->MessageQueueing(currentUserMessage);
+					//write(pollFDArray[i].fd, receive, length - 1);
 				}
 			}
 			break;
@@ -390,8 +440,9 @@ int main()
 
 							for (int j = 1; j < USER_MAXIMUM; j++)
 							{
-
-								if (pollFDArray[j].fd != -1) write(pollFDArray[j].fd, message, 5);
+								char* currentUserMessage = new char[5];
+								memcpy(currentUserMessage, message, 5);
+								if (userFDArray[j].fd nullptr) userFDArray[j]->MessageQueueing(currentUserMessage);
 							}
 
 							break;
@@ -413,8 +464,13 @@ int main()
 
 						for (int j = 1; j < USER_MAXIMUM; j++)
 						{
-
-							if (pollFDArray[j].fd != -1) write(pollFDArray[j].fd, message, 5);
+							
+							if (i != j && pollFDArray[j].fd != -1 && userFDArray[j] != nullptr)
+							{
+								char* currentUserMessage = new char[5];
+								memcpy(currentUserMessage, message, 5);
+								userFDArray[j]->MessageQueueing(currentUserMessage);
+							}
 						}
 						break;
 					}
@@ -449,9 +505,9 @@ void* MessageSendThread(void* args)
 			//스레드란 컴퓨터가 프로그램을 돌릴 때 돌아가는 하나의 라인이라고 보시면 됩니다
 		for (int i = 1; i < USER_MAXIMUM; i++)
 		{
-			if (userFDArray[i] != nullptr)
+			if (pollFDArray[i].fd >= 0 && userFDArray[i] != nullptr)
 			{
-				memset(buffSend, 0, BUFFER_SIZE);
+				
 				userFDArray[i]->MessageSend();
 			}
 		}

@@ -325,7 +325,7 @@ int main()
 							intChanger.intValue = i;
 							for (int k = 0; k < 4; k++) message[k + 1] = intChanger.charArray[k];
 
-							userFDArray[i] = new Userdata();
+							userFDArray[i] = new UserData();
 
 							userFDArray[i]->FDNumber = i;
 
@@ -335,7 +335,7 @@ int main()
 								if (pollFDArray[j].fd != -1)
 								{
 									char* currentUserMessage = new char[5];
-									mempcy(currentUserMessage, message, 5);
+									memcpy(currentUserMessage, message, 5);
 
 									userFDArray[i]->MessageQueueing(currentUserMessage);
 

@@ -352,7 +352,7 @@ int main()
 									userFDArray[i]->MessageQueueing(userNumberMessage);
 								}
 							}
-							userFDArray[i]->MessageSend();
+							//userFDArray[i]->MessageSend();
 							break;
 						};
 					};

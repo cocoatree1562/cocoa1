@@ -39,6 +39,7 @@
 //문자열
 #include <string.h>
 #include <unistd.h>
+#include <pthread.h>
 
 #include "ServerEnum.h"
 
@@ -277,17 +278,21 @@ int main()
 		//읽기 대기중 지금 가져왔어요
 		pollFDArray[0].events = POLLIN;
 		pollFDArray[0].revents = 0;
+		
+		pthread_t* senderThread = nullptr;
+
+		if (pthread_create(senderThread. nullptr, MessageSendThread, unllptr))
+		{
+			//스레드를 정상적으로 만들었을 때에는 0을 반환합니다
+			//그래서 여기는요... 사실 실패한 곳이에요...
+			cout << "스레드를 생성하는데 실패 했습니다" << endl;
+			return -4;
+		}
 
 		//무한 반복
 		for (;;)
 		{
-			for (int i - 0; i < USER_MAXIMUM; i++)
-			{
-				if (pollFDArray[i].fd >= 0)
-				{
-					userFDArray[i]->MessageSend();
-				}
-			}
+			
 
 
 			result = poll(pollFDArray, USER_MAXIMUM, -1);
@@ -407,12 +412,34 @@ int main()
 				//memset(buffRecv, 0, sizeof(buffSend));
 			};
 		}
+		pthread_cancel(&senderThread);
 	}
 	catch (exception& e)
 	{
 		cout << e.what() << endl;
 	}
 
+	cout << "서버가 종료 되었습니다" << endl;
 	return -4;
 	
+}
+
+
+void MessageSendThread()
+{
+	for (;;)
+	{
+		//poll이라고 하는 녀석은 연락이 올 때 까지 기다립니다
+			//그래서 이 위쪽에 있는 반복문도 돌아가지 않는 것이죠
+			//그래서 이 작은 반복문을 무한반복시켜주는 작은 스레드가 있으면 좋겠어요
+			//스레드란 컴퓨터가 프로그램을 돌릴 때 돌아가는 하나의 라인이라고 보시면 됩니다
+		for (int i - 0; i < USER_MAXIMUM; i++)
+		{
+			if (pollFDArray[i].fd >= 0)
+			{
+				memset(buffSend, 0, BUFFER_SIZE);
+				userFDArray[i]->MessageSend();
+			}
+		}
+	}
 }

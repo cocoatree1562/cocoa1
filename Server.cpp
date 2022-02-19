@@ -42,6 +42,7 @@
 #include <pthread.h>
 
 #include "ServerEnum.h"
+#include "MySQL.h"
 
 #include <queue>
 
@@ -313,6 +314,9 @@ int main()
 		memset(buffRecv, 0, sizeof(buffRecv));
 		memset(buffSend, 0, sizeof(buffSend));
 
+		//MySQL을 시작합니다
+		if (!MYSQLInitialize()) return -4;
+
 		//서버를 시작합니다			실패하면 그대로 프로그램을 종료합시다
 
 		if (StartServer(&listenFD)) return -4;
@@ -488,6 +492,8 @@ int main()
 	{
 		cout << e.what() << endl;
 	}
+	//MySQL닫고 갑시다
+	MySQLClose();
 
 	cout << "서버가 종료 되었습니다" << endl;
 	return -4;
